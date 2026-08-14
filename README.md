@@ -79,3 +79,4 @@ npx vite build
 - [`docs/AI_PROMPTS.md`](docs/AI_PROMPTS.md) — лог промптів та ітерацій.
 - [`docs/CODE_REVIEW.md`](docs/CODE_REVIEW.md) — письмове рев’ю фрагмента з Частини 2.
 - [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) — короткий сценарій відео або скріншотів.
+- [`docs/screenshots/`](docs/screenshots/) — послідовність скріншотів запуску й обох фіч.
