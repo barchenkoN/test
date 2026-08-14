@@ -10,6 +10,9 @@ final class Money
 
     public static function format(int $minor): string
     {
-        return number_format($minor / 100, 2, '.', '');
+        $whole = intdiv($minor, 100);
+        $fraction = $minor % 100;
+
+        return sprintf('%d.%02d', $whole, $fraction);
     }
 }
