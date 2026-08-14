@@ -58,10 +58,12 @@ Seed-коди: `WELCOME10` (₴10.00), `SPORTS25` (₴25.00), `EXPIRED1` (про
 
 ```powershell
 php artisan test
+# Якщо Windows-шлях містить кирилицю і artisan test не може передати шлях PHPUnit:
+vendor/bin/phpunit --configuration phpunit.xml
 npx vite build
 ```
 
-На машині розробки без встановлених PHP/Node ці команди не виконуються; код і конфігурація залишені готовими для стандартного Laravel/Vite оточення.
+Для цього проєкту перевірено `vendor/bin/phpunit --configuration phpunit.xml` — 7 тестів, 42 assertions — і production build Vite.
 
 ## Історія комітів
 

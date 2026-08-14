@@ -61,3 +61,7 @@
 **Ітерація:**
 
 Результат оформлено в `docs/CODE_REVIEW.md`; README доповнено запуском, security decisions і сценарієм демонстрації.
+
+## 6. Перевірка запуску
+
+Під час реального локального запуску Composer 2.10 заблокував Laravel 11 через актуальні security advisories. Framework constraint оновлено до Laravel 12, після чого `composer update` завершився без advisory warnings, міграції/seed пройшли, а PHPUnit підтвердив 7 тестів і 42 assertions. Це не змінює функціональний scope завдання, але робить стартовий стек безпечнішим для відтворення.

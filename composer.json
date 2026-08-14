@@ -4,7 +4,7 @@
     "description": "AI-assisted Laravel/Vue promo wallet demo.",
     "require": {
         "php": "^8.2",
-        "laravel/framework": "^11.0",
+        "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0"
     },
     "require-dev": {
