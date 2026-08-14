@@ -15,6 +15,7 @@ const historyLoading = ref(false)
 const statusFilter = ref('')
 const meta = ref({ current_page: 1, last_page: 1, total: 0 })
 const revokingId = ref(null)
+const pendingRevoke = ref(null)
 
 const statusOptions = [
     { value: '', label: 'Усі записи' },
@@ -105,10 +106,14 @@ async function claimPromo() {
     }
 }
 
-async function revokeClaim(claim) {
-    if (!window.confirm(`Скасувати бонус за промокодом ${claim.code}? Кошти буде списано з балансу.`)) {
-        return
-    }
+function requestRevokeClaim(claim) {
+    pendingRevoke.value = claim
+}
+
+async function confirmRevoke() {
+    const claim = pendingRevoke.value
+
+    if (!claim) return
 
     revokingId.value = claim.id
     notification.value = null
@@ -122,6 +127,7 @@ async function revokeClaim(claim) {
         showNotification('error', errorMessage(error, 'Не вдалося скасувати бонус.'))
     } finally {
         revokingId.value = null
+        pendingRevoke.value = null
     }
 }
 
@@ -259,7 +265,7 @@ onMounted(() => {
                             <span class="pill" :class="claim.status">{{ statusLabel(claim.status) }}</span>
                             <small v-if="claim.reason" class="reason">{{ claim.reason }}</small>
                         </div>
-                        <button v-if="claim.status === 'applied'" class="revoke-button" :disabled="revokingId === claim.id" @click="revokeClaim(claim)">
+                        <button v-if="claim.status === 'applied'" class="revoke-button" :disabled="revokingId === claim.id" @click="requestRevokeClaim(claim)">
                             {{ revokingId === claim.id ? 'Скасовуємо…' : 'Скасувати' }}
                         </button>
                     </article>
@@ -272,5 +278,17 @@ onMounted(() => {
                 </div>
             </section>
         </template>
+
+        <div v-if="pendingRevoke" class="modal-backdrop" role="presentation">
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="revoke-title">
+                <p class="eyebrow">ПІДТВЕРДЖЕННЯ ДІЇ</p>
+                <h2 id="revoke-title">Скасувати бонус?</h2>
+                <p class="modal-copy">Буде списано ₴ {{ pendingRevoke.amount }} з балансу за промокодом <strong>{{ pendingRevoke.code }}</strong>. Цю дію не можна виконати повторно.</p>
+                <div class="modal-actions">
+                    <button class="secondary-button" @click="pendingRevoke = null">Залишити</button>
+                    <button class="primary-button" @click="confirmRevoke">Підтвердити скасування</button>
+                </div>
+            </div>
+        </div>
     </main>
 </template>
