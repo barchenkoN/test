@@ -14,11 +14,13 @@ const history = ref([])
 const historyLoading = ref(false)
 const statusFilter = ref('')
 const meta = ref({ current_page: 1, last_page: 1, total: 0 })
+const revokingId = ref(null)
 
 const statusOptions = [
     { value: '', label: 'Усі записи' },
     { value: 'applied', label: 'Застосовані' },
     { value: 'rejected', label: 'Відхилені' },
+    { value: 'revoked', label: 'Скасовані' },
 ]
 
 function showNotification(type, text) {
@@ -100,6 +102,26 @@ async function claimPromo() {
         await loadHistory()
     } finally {
         claimLoading.value = false
+    }
+}
+
+async function revokeClaim(claim) {
+    if (!window.confirm(`Скасувати бонус за промокодом ${claim.code}? Кошти буде списано з балансу.`)) {
+        return
+    }
+
+    revokingId.value = claim.id
+    notification.value = null
+
+    try {
+        const response = await api.patch(`/api/promo/${claim.id}/revoke`)
+        balance.value = response.data.data.balance
+        showNotification('success', response.data.message)
+        await loadHistory(meta.value.current_page)
+    } catch (error) {
+        showNotification('error', errorMessage(error, 'Не вдалося скасувати бонус.'))
+    } finally {
+        revokingId.value = null
     }
 }
 
@@ -237,6 +259,9 @@ onMounted(() => {
                             <span class="pill" :class="claim.status">{{ statusLabel(claim.status) }}</span>
                             <small v-if="claim.reason" class="reason">{{ claim.reason }}</small>
                         </div>
+                        <button v-if="claim.status === 'applied'" class="revoke-button" :disabled="revokingId === claim.id" @click="revokeClaim(claim)">
+                            {{ revokingId === claim.id ? 'Скасовуємо…' : 'Скасувати' }}
+                        </button>
                     </article>
                 </div>
 

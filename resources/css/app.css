@@ -55,7 +55,7 @@ code { border-radius: 5px; padding: 2px 5px; color: #40564f; background: #eef4f0
 .history-heading { align-items: center; }
 .filter-label { width: 180px; }
 .history-list { display: grid; gap: 2px; }
-.history-row { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 20px; border-top: 1px solid #edf1ee; padding: 16px 0; }
+.history-row { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 20px; border-top: 1px solid #edf1ee; padding: 16px 0; }
 .code-name { font-weight: 800; letter-spacing: .04em; }
 .history-date { margin-top: 4px; font-size: .78rem; }
 .history-amount { font-variant-numeric: tabular-nums; font-weight: 800; }

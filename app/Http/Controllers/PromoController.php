@@ -129,6 +129,53 @@ class PromoController extends Controller
         ]);
     }
 
+    public function revoke(Request $request, PromoClaim $claim): JsonResponse
+    {
+        return DB::transaction(function () use ($request, $claim): JsonResponse {
+            $user = User::query()->whereKey($request->user()->id)->lockForUpdate()->firstOrFail();
+            $ownedClaim = PromoClaim::query()
+                ->forUser($user->id)
+                ->whereKey($claim->id)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $ownedClaim) {
+                return response()->json(['message' => 'Нарахування не знайдено.'], 404);
+            }
+
+            if ($ownedClaim->status !== PromoClaim::STATUS_APPLIED) {
+                return response()->json([
+                    'message' => 'Це нарахування вже скасоване або відхилене.',
+                    'error' => ['code' => 'claim_not_reversible'],
+                ], 409);
+            }
+
+            if ($user->balance_minor < $ownedClaim->amount_minor) {
+                return response()->json([
+                    'message' => 'Недостатньо коштів для безпечного скасування бонусу.',
+                    'error' => ['code' => 'insufficient_balance'],
+                ], 409);
+            }
+
+            $user->decrement('balance_minor', $ownedClaim->amount_minor);
+            $user->refresh();
+            $ownedClaim->update([
+                'status' => PromoClaim::STATUS_REVOKED,
+                'revoked_at' => now(),
+            ]);
+
+            return response()->json([
+                'message' => 'Бонус скасовано.',
+                'data' => [
+                    'claim_id' => $ownedClaim->id,
+                    'deducted_amount' => Money::format($ownedClaim->amount_minor),
+                    'balance' => Money::format($user->balance_minor),
+                    'claim' => $this->claimPayload($ownedClaim),
+                ],
+            ]);
+        });
+    }
+
     private function rejected(
         User $user,
         string $code,
